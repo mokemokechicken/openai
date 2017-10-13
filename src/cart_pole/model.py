@@ -15,7 +15,9 @@ def build_model(env, config: Config):
     x = Flatten()(x)
     x = Dense(16, activation="relu")(x)
     x = Dense(16, activation="relu")(x)
-    x = Dense(env.action_space.n)(x)
+    x = Dense(16, activation="relu")(x)
+    x = Dense(16, activation="relu")(x)
+    x = Dense(env.action_space.n, activation="linear")(x)
     model = Model(input=in_x, output=x)
     return model
 
