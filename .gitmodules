@@ -1,0 +1,12 @@
+[submodule "gym"]
+	path = gym
+	url = https://github.com/openai/gym.git
+[submodule "baselines"]
+	path = baselines
+	url = https://github.com/openai/baselines.git
+[submodule "github/gym"]
+	path = github/gym
+	url = https://github.com/openai/gym.git
+[submodule "github/baselines"]
+	path = github/baselines
+	url = https://github.com/openai/baselines.git
