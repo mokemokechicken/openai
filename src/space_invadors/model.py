@@ -13,10 +13,8 @@ def build_model(env, config):
     :param gym.core.Env env:
     :return:
     """
-    n_dim = 256
+    n_dim = 128
     n_layer = 2
-
-    print(env.observation_space.shape)
 
     in_x = x = Input(shape=(config.window_length,) + env.observation_space.shape)
     x = Flatten()(x)
@@ -30,5 +28,6 @@ def build_model(env, config):
 
 def add_resnet(x, n_dim):
     in_x = x
+    x = Dense(n_dim, activation="relu")(x)
     x = Dense(n_dim, activation="relu")(x)
     return Add()([in_x, x])

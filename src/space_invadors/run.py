@@ -19,13 +19,23 @@ import matplotlib.pyplot as plt
 class InvadorProcessor(Processor):
     def __init__(self, training=True):
         self.training = training
+        self.dead = False
+        self.mode = 0
 
     def process_observation(self, observation):
+        mode = observation[-19]
+        if self.mode != 4 and mode == 4:  # dead state
+            self.dead = True
+        self.mode = mode
         return observation / 255
 
     def process_reward(self, reward):
         if self.training:
-            return reward / 100
+            reward = reward / 100
+            if self.dead and self.mode == 4:
+                reward = -1
+                self.dead = False
+            return reward
         else:
             return reward
 
@@ -36,9 +46,12 @@ def create_agent(config: Config, env, model, training=True):
     policy = EpsGreedyQPolicy(eps=config.greedy_eps)
     # policy = BoltzmannQPolicy()
     processor = InvadorProcessor(training=training)
+    nb_steps_warmup = config.nb_steps_warmup if training else 0
 
-    dqn = DQNAgent(model=model, nb_actions=env.action_space.n, memory=memory, nb_steps_warmup=config.nb_steps_warmup,
-                   target_model_update=1e-2, policy=policy, test_policy=policy, processor=processor)
+    dqn = DQNAgent(model=model, nb_actions=env.action_space.n, memory=memory, nb_steps_warmup=nb_steps_warmup,
+                   target_model_update=config.target_model_update, policy=policy, test_policy=policy, processor=processor,
+                   gamma=config.gamma, enable_double_dqn=config.enable_double_dqn,
+                   )
     dqn.compile(Adam(lr=1e-3), metrics=['mae'])
     return dqn
 
@@ -50,6 +63,7 @@ def train(config: Config):
     model = build_model(env, config)
     dqn = create_agent(config, env, model, training=True)
     if not config.opts.new and os.path.exists(config.model_weight_path):
+        print(f"loading model: {config.model_weight_path}")
         dqn.load_weights(config.model_weight_path)
 
     reward_history = []
@@ -64,15 +78,14 @@ def train(config: Config):
         print(f"total episode={len(reward_history)}, last 100 episode reward average={last_100_average}")
         if len(reward_history) >= 100 and last_100_average > config.goal_reward:
             break
-        dqn.policy.eps = config.greedy_eps * (1 - num_steps / config.training_step)
-        model.save_weights(config.model_weight_path, overwrite=True)
+        dqn.save_weights(config.model_weight_path, overwrite=True)
 
     if reward_history:
         plt.plot(reward_history)
         plt.savefig(config.train_reward_graph)
 
     print(f"save model to {config.model_weight_path}")
-    model.save_weights(config.model_weight_path, overwrite=True)
+    dqn.save_weights(config.model_weight_path, overwrite=True)
 
 
 def get_verbose_level(config):
