@@ -5,6 +5,7 @@ import gym
 from gym.core import Wrapper
 from keras.optimizers import Adam
 from rl.agents.dqn import DQNAgent
+from rl.core import Processor
 from rl.memory import SequentialMemory
 from rl.policy import EpsGreedyQPolicy, BoltzmannQPolicy
 
@@ -15,35 +16,34 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-class WrapEnv(Wrapper):
-    def _step(self, action):
-        observation, reward, done, info = super()._step(action)
-        # observation: (position, velocity), reward = always -1
-        # reward = -1 + abs(observation[1])
-        return observation, reward, done, info
+class InvadorProcessor(Processor):
+    def process_reward(self, reward):
+        return np.tanh(reward / 100)
 
 
-def create_agent(config: Config, env, model):
+def create_agent(config: Config, env, model, training=True):
     memory = SequentialMemory(limit=config.memory_size, window_length=config.window_length)
 
     # 行動方策はオーソドックスなepsilon-greedy。ほかに、各行動のQ値によって確率を決定するBoltzmannQPolicyが利用可能
-    #policy = EpsGreedyQPolicy(eps=config.greedy_eps)
-    policy = BoltzmannQPolicy()
+    policy = EpsGreedyQPolicy(eps=config.greedy_eps)
+    # policy = BoltzmannQPolicy()
+    if training:
+        processor = InvadorProcessor()
+    else:
+        processor = None
 
     dqn = DQNAgent(model=model, nb_actions=env.action_space.n, memory=memory, nb_steps_warmup=config.nb_steps_warmup,
-                   target_model_update=1e-2, policy=policy)
+                   target_model_update=1e-2, policy=policy, test_policy=policy, processor=processor)
     dqn.compile(Adam(lr=1e-3), metrics=['mae'])
     return dqn
 
 
 def train(config: Config):
     env = gym.make(config.env_name)
-    # env = WrapEnv(env)
     env.reset()
-    # env = wrappers.Monitor(env, video_path, force=True)
 
     model = build_model(env, config)
-    dqn = create_agent(config, env, model)
+    dqn = create_agent(config, env, model, training=True)
     if not config.opts.new and os.path.exists(config.model_weight_path):
         dqn.load_weights(config.model_weight_path)
 
@@ -80,11 +80,9 @@ def get_verbose_level(config):
 def evaluate(config: Config):
     env = gym.make(config.env_name)
     env.reset()
-    env._max_episode_steps = config.nb_max_episode_steps
-    # env = wrappers.Monitor(env, video_path, force=True)
 
     model = build_model(env, config)
-    dqn = create_agent(config, env, model)
+    dqn = create_agent(config, env, model, training=False)
     dqn.load_weights(config.model_weight_path)
     history = dqn.test(env, nb_episodes=config.nb_test_episode, visualize=config.opts.render)
     rewards = history.history.get("episode_reward")

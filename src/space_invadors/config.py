@@ -4,9 +4,9 @@ class Config:
         self.goal_reward = 1000
         self.model_path = "model"
         self.model_weight_path = "model_weight.h5"
-        self.nb_steps_warmup = 100
-        self.memory_size = 1000000
-        self.window_length = 4
+        self.nb_steps_warmup = 1000
+        self.memory_size = 20000
+        self.window_length = 2
         self.batch_step_size = 10000
         self.training_step = 1000000
         self.nb_max_episode_steps = 10000
