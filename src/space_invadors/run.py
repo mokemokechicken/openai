@@ -44,7 +44,8 @@ def create_agent(config: Config, env, model, training=True):
     memory = SequentialMemory(limit=config.memory_size, window_length=config.window_length)
 
     policy = EpsGreedyQPolicy(eps=config.greedy_eps)
-    # policy = BoltzmannQPolicy()
+    if not training:
+        policy = BoltzmannQPolicy(tau=0.01)
     processor = InvadorProcessor(training=training)
     nb_steps_warmup = config.nb_steps_warmup if training else 0
 

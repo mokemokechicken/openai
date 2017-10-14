@@ -8,7 +8,7 @@ class Config:
         self.memory_size = 20000
         self.window_length = 5
         self.batch_step_size = 10000
-        self.training_step = 1000000
+        self.training_step = 10000000
         self.nb_max_episode_steps = 100000
         self.nb_test_episode = 10
         self.train_reward_graph = "reward_train.png"
@@ -17,4 +17,4 @@ class Config:
         self.greedy_eps = 0.05
         self.gamma = 0.99  # Q-Learning gamma
         self.enable_double_dqn = True
-        self.target_model_update = 1000  # number of steps to update target model
+        self.target_model_update = 10000  # number of steps to update target model
