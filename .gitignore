@@ -20,3 +20,4 @@ tmp.*
 /keys/*
 *.cookie
 video/*
+*.h5

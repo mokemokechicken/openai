@@ -7,7 +7,7 @@ class Config:
         self.window_length = 2
         self.training_step = 50000
         self.nb_max_episode_steps = 500
-        self.visualize_training = False
+        self.visualize_training = True
         self.visualize_test = True
         self.nb_test_episode = 10
         self.train_reward_graph = "reward_train.png"
