@@ -17,20 +17,25 @@ import matplotlib.pyplot as plt
 
 
 class InvadorProcessor(Processor):
+    def __init__(self, training=True):
+        self.training = training
+
+    def process_observation(self, observation):
+        return observation / 255
+
     def process_reward(self, reward):
-        return np.tanh(reward / 100)
+        if self.training:
+            return reward / 100
+        else:
+            return reward
 
 
 def create_agent(config: Config, env, model, training=True):
     memory = SequentialMemory(limit=config.memory_size, window_length=config.window_length)
 
-    # 行動方策はオーソドックスなepsilon-greedy。ほかに、各行動のQ値によって確率を決定するBoltzmannQPolicyが利用可能
     policy = EpsGreedyQPolicy(eps=config.greedy_eps)
     # policy = BoltzmannQPolicy()
-    if training:
-        processor = InvadorProcessor()
-    else:
-        processor = None
+    processor = InvadorProcessor(training=training)
 
     dqn = DQNAgent(model=model, nb_actions=env.action_space.n, memory=memory, nb_steps_warmup=config.nb_steps_warmup,
                    target_model_update=1e-2, policy=policy, test_policy=policy, processor=processor)
@@ -80,6 +85,9 @@ def get_verbose_level(config):
 def evaluate(config: Config):
     env = gym.make(config.env_name)
     env.reset()
+    #print(env.observation_space)
+    #print(env.observation_space.high)
+    #print(env.observation_space.low)
 
     model = build_model(env, config)
     dqn = create_agent(config, env, model, training=False)
