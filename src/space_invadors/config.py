@@ -5,7 +5,7 @@ class Config:
         self.model_path = "model"
         self.model_weight_path = "model_weight.h5"
         self.nb_steps_warmup = 10
-        self.memory_size = 20000
+        self.memory_size = 200000
         self.window_length = 5
         self.batch_step_size = 10000
         self.training_step = 10000000
@@ -18,3 +18,5 @@ class Config:
         self.gamma = 0.99  # Q-Learning gamma
         self.enable_double_dqn = True
         self.target_model_update = 10000  # number of steps to update target model
+        self.prior_eps = 0.01
+        self.init_prior = 10

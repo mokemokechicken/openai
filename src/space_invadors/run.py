@@ -2,7 +2,7 @@ import os
 from argparse import ArgumentParser
 
 import gym
-from gym.core import Wrapper
+
 from keras.optimizers import Adam
 from rl.agents.dqn import DQNAgent
 from rl.core import Processor
@@ -44,7 +44,8 @@ class InvadorProcessor(Processor):
 
 def create_agent(config: Config, env, model, training=True):
     # memory = SequentialMemory(limit=config.memory_size, window_length=config.window_length)
-    memory = PrioritizedSequentialMemory(limit=config.memory_size, window_length=config.window_length)
+    memory = PrioritizedSequentialMemory(limit=config.memory_size, window_length=config.window_length,
+                                         eps=config.prior_eps, init_prior=config.init_prior)
 
     policy = EpsGreedyQPolicy(eps=config.greedy_eps)
     # if not training:

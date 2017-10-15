@@ -1,6 +1,5 @@
 from collections import namedtuple
 
-from baselines.common.segment_tree import SumSegmentTree
 from rl.memory import SequentialMemory, zeroed_observation
 
 import numpy as np
