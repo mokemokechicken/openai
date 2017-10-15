@@ -9,6 +9,8 @@ from rl.core import Processor
 from rl.memory import SequentialMemory
 from rl.policy import EpsGreedyQPolicy, BoltzmannQPolicy
 
+from prioritized_experience_replay.prioritized_dqn_agent import PrioritizedDQNAgent
+from prioritized_experience_replay.prioritized_memory import PrioritizedSequentialMemory
 from space_invadors.model import build_model
 from space_invadors.config import Config
 
@@ -41,18 +43,25 @@ class InvadorProcessor(Processor):
 
 
 def create_agent(config: Config, env, model, training=True):
-    memory = SequentialMemory(limit=config.memory_size, window_length=config.window_length)
+    # memory = SequentialMemory(limit=config.memory_size, window_length=config.window_length)
+    memory = PrioritizedSequentialMemory(limit=config.memory_size, window_length=config.window_length)
 
     policy = EpsGreedyQPolicy(eps=config.greedy_eps)
-    if not training:
-        policy = BoltzmannQPolicy(tau=0.01)
+    # if not training:
+    #     policy = BoltzmannQPolicy(tau=0.01)
     processor = InvadorProcessor(training=training)
     nb_steps_warmup = config.nb_steps_warmup if training else 0
 
-    dqn = DQNAgent(model=model, nb_actions=env.action_space.n, memory=memory, nb_steps_warmup=nb_steps_warmup,
-                   target_model_update=config.target_model_update, policy=policy, test_policy=policy, processor=processor,
-                   gamma=config.gamma, enable_double_dqn=config.enable_double_dqn,
-                   )
+    # dqn = DQNAgent(model=model, nb_actions=env.action_space.n, memory=memory, nb_steps_warmup=nb_steps_warmup,
+    #                target_model_update=config.target_model_update, policy=policy, test_policy=policy, processor=processor,
+    #                gamma=config.gamma, enable_double_dqn=config.enable_double_dqn,
+    #                )
+    dqn = PrioritizedDQNAgent(model=model, nb_actions=env.action_space.n, memory=memory,
+                              nb_steps_warmup=nb_steps_warmup, target_model_update=config.target_model_update,
+                              policy=policy, test_policy=policy, processor=processor,
+                              gamma=config.gamma, enable_double_dqn=config.enable_double_dqn
+                              )
+
     dqn.compile(Adam(lr=1e-3), metrics=['mae'])
     return dqn
 

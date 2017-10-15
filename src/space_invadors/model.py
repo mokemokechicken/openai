@@ -1,9 +1,7 @@
 from keras.engine.topology import Input
 from keras.layers.core import Dense, Flatten
 from keras.layers.merge import Add
-from keras.layers.normalization import BatchNormalization
 from rl.keras_future import Model
-from tensorflow.contrib.rnn.python.ops.rnn_cell import LayerNormBasicLSTMCell
 
 
 def build_model(env, config):
@@ -13,14 +11,12 @@ def build_model(env, config):
     :param gym.core.Env env:
     :return:
     """
-    n_dim = 128
-    n_layer = 2
+    n_dims = [64, 512]
 
     in_x = x = Input(shape=(config.window_length,) + env.observation_space.shape)
     x = Flatten()(x)
-    x = Dense(n_dim, activation="relu")(x)
-    for _ in range(n_layer):
-        x = add_resnet(x, n_dim)
+    for n_dim in n_dims:
+        x = Dense(n_dim, activation="relu")(x)
     x = Dense(env.action_space.n, activation="linear")(x)
     model = Model(input=in_x, output=x)
     return model
