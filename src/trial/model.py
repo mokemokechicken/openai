@@ -11,7 +11,7 @@ def build_model(env, config):
     :param gym.core.Env env:
     :return:
     """
-    n_dims = [64, 32, 32]
+    n_dims = [64, 32]
 
     in_x = x = Input(shape=(config.window_length,) + env.observation_space.shape)
     x = Flatten()(x)

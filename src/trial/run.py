@@ -4,42 +4,24 @@ from argparse import ArgumentParser
 import gym
 
 from keras.optimizers import Adam
-from rl.agents.dqn import DQNAgent
 from rl.core import Processor
-from rl.memory import SequentialMemory
-from rl.policy import EpsGreedyQPolicy, BoltzmannQPolicy
+from rl.policy import EpsGreedyQPolicy
 
 from prioritized_experience_replay.prioritized_dqn_agent import PrioritizedDQNAgent
 from prioritized_experience_replay.prioritized_memory import PrioritizedSequentialMemory
-from space_invadors.model import build_model
-from space_invadors.config import Config
+from trial.model import build_model
+from trial.config import Config
 
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-class InvadorProcessor(Processor):
+class ThisProcessor(Processor):
     def __init__(self, training=True):
         self.training = training
-        self.dead = False
-        self.mode = 0
 
-    def process_observation(self, observation):
-        mode = observation[-19]
-        if self.mode != 4 and mode == 4:  # dead state
-            self.dead = True
-        self.mode = mode
-        return observation / 255
-
-    def process_reward(self, reward):
-        if self.training:
-            reward = reward / 100
-            if self.dead and self.mode == 4:
-                reward = -1
-                self.dead = False
-            return reward
-        else:
-            return reward
+    # def process_observation(self, observation):
+    #     return observation / 255
 
 
 def create_agent(config: Config, env, model, training=True):
@@ -47,9 +29,7 @@ def create_agent(config: Config, env, model, training=True):
                                          eps=config.prior_eps, init_prior=config.init_prior)
 
     policy = EpsGreedyQPolicy(eps=config.greedy_eps)
-    # if not training:
-    #     policy = BoltzmannQPolicy(tau=0.01)
-    processor = InvadorProcessor(training=training)
+    processor = ThisProcessor(training=training)
     nb_steps_warmup = config.nb_steps_warmup if training else 0
 
     dqn = PrioritizedDQNAgent(model=model, nb_actions=env.action_space.n, memory=memory,
@@ -65,6 +45,10 @@ def create_agent(config: Config, env, model, training=True):
 def train(config: Config):
     env = gym.make(config.env_name)
     env.reset()
+    print(env.observation_space)
+    print(env.action_space)
+    #print(env.observation_space.high)
+    #print(env.observation_space.low)
 
     model = build_model(env, config)
     dqn = create_agent(config, env, model, training=True)
@@ -104,9 +88,6 @@ def get_verbose_level(config):
 def evaluate(config: Config):
     env = gym.make(config.env_name)
     env.reset()
-    #print(env.observation_space)
-    #print(env.observation_space.high)
-    #print(env.observation_space.low)
 
     model = build_model(env, config)
     dqn = create_agent(config, env, model, training=False)
