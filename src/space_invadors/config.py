@@ -5,9 +5,9 @@ class Config:
         self.model_path = "model"
         self.model_weight_path = f"models/{self.env_name}_model_weight.h5"
         self.nb_steps_warmup = 10
-        self.memory_size = 20000
+        self.memory_size = 500000
         self.window_length = 5
-        self.batch_step_size = 10000
+        self.batch_step_size = 50000
         self.training_step = 10000000
         self.nb_max_episode_steps = 100000
         self.nb_test_episode = 10
