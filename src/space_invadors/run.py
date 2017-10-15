@@ -136,6 +136,10 @@ def main():
     if opts.episode:
         config.nb_test_episode = opts.episode
 
+    model_base = os.path.dirname(config.model_weight_path)
+    if not os.path.exists(model_base):
+        os.makedirs(model_base)
+
     if target == "train":
         train(config)
     elif target == "test":
