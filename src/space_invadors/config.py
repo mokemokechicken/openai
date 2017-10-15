@@ -20,3 +20,4 @@ class Config:
         self.target_model_update = 10000  # number of steps to update target model
         self.prior_eps = 0.0001
         self.init_prior = 10
+        self.learning_rate = 0.0001

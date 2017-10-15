@@ -58,7 +58,7 @@ def create_agent(config: Config, env, model, training=True):
                               gamma=config.gamma, enable_double_dqn=config.enable_double_dqn
                               )
 
-    dqn.compile(Adam(lr=1e-3), metrics=['mae'])
+    dqn.compile(Adam(lr=config.learning_rate), metrics=['mae'])
     return dqn
 
 
