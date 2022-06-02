@@ -20,7 +20,7 @@ cycler==0.10.0
 dill==0.2.7.1
 gym==0.9.4
 h5py==2.7.1
-html5lib==0.9999999
+html5lib==0.99999999
 idna==2.6
 imageio==2.2.0
 joblib==0.11
