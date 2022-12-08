@@ -14,7 +14,7 @@ azure-servicemanagement-legacy==0.20.2
 azure-storage==0.20.3
 -e git+https://github.com/openai/baselines.git@4993286230ac92ead39a66005b7042b56b8598b0#egg=baselines&subdirectory=../../../github/baselines
 bleach==1.5.0
-certifi==2017.7.27.1
+certifi==2022.12.7
 chardet==3.0.4
 cycler==0.10.0
 dill==0.2.7.1
